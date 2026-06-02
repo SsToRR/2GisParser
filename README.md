@@ -1,210 +1,228 @@
-# 2GIS Parser - FastAPI веб-приложение
+# 2GIS Parser
 
-Веб-приложение для парсинга данных с 2GIS с использованием FastAPI, Selenium и современного фронтенда.
+Веб-приложение для парсинга филиалов из ссылок 2ГИС. Пользователь вставляет ссылку на поиск, рубрику или карточку 2ГИС, выбирает лимиты и нужные поля, запускает парсер и получает предпросмотр первых 10 филиалов и CSV-файл со всеми найденными данными.
 
 ## Возможности
 
-- 🔍 Парсинг данных по поисковому запросу
-- 🏙️ Поддержка множества городов
-- 📊 Отслеживание прогресса в реальном времени (WebSocket)
-- 📥 Экспорт результатов в Excel
-- 🎨 Современный и адаптивный UI
-- ⚡ Асинхронная обработка задач
+- Парсинг ссылок 2ГИС: поиск, рубрика или карточка компании.
+- Видимый Chrome через `undetected-chromedriver`.
+- Настройка лимита страниц и лимита филиалов.
+- Выбор колонок перед запуском.
+- Сбор данных филиалов:
+  - название;
+  - оценка;
+  - город;
+  - адрес;
+  - расписание;
+  - телефоны;
+  - почта;
+  - сайт;
+  - WhatsApp номера и ссылка;
+  - Telegram ссылка и ник;
+  - Instagram, Youtube, VK, OK;
+  - другие соцсети;
+  - информация;
+  - URL карточки.
+- Прогресс в реальном времени через WebSocket.
+- Предпросмотр первых 10 филиалов в таблице.
+- CSV-экспорт всех результатов.
 
-## Структура проекта
+## Важные детали
 
+2ГИС часто блокирует скрытый headless-браузер, поэтому по умолчанию приложение открывает обычное окно Chrome:
+
+```env
+HEADLESS=False
 ```
-project/
-├── app/
-│   ├── __init__.py
-│   ├── main.py              # Точка входа FastAPI
-│   ├── config.py            # Конфигурация
-│   ├── models/              # Модели данных
-│   │   ├── schemas.py       # Pydantic схемы
-│   │   └── domain.py        # Доменные модели
-│   ├── api/                 # API endpoints
-│   │   ├── routes.py
-│   │   └── dependencies.py
-│   ├── services/            # Бизнес-логика
-│   │   ├── parser.py        # Парсер 2GIS
-│   │   ├── task_manager.py  # Менеджер задач
-│   │   └── export.py        # Экспорт в Excel
-│   ├── core/                # Ядро приложения
-│   │   └── exceptions.py
-│   └── utils/               # Утилиты
-│       └── helpers.py
-├── static/                  # Статические файлы
-│   ├── css/
-│   └── js/
-├── templates/               # HTML шаблоны
-│   └── index.html
-├── exports/                 # Экспортированные Excel файлы
-├── requirements.txt
-├── docker-compose.yml
-└── README.md
+
+Не закрывайте Chrome во время парсинга.
+
+По умолчанию используется один воркер:
+
+```env
+PARSER_WORKERS=1
 ```
+
+Это стабильнее для Windows и `undetected-chromedriver`. Поле "Воркеры" в интерфейсе оставлено, но фронтенд сейчас отправляет `workers: 1`.
+
+## Требования
+
+- Python 3.11+
+- Google Chrome
+- Windows, macOS или Linux
+
+Chrome major version задается в `.env` или `app/config.py`:
+
+```env
+CHROME_VERSION_MAIN=148
+```
+
+Если Chrome обновился, поменяйте значение на текущую major-версию браузера.
 
 ## Установка
 
-### Локальная установка
+1. Клонируйте репозиторий:
 
-1. Клонируйте репозиторий или скопируйте файлы проекта
+```powershell
+git clone https://github.com/SsToRR/2GisParser.git
+cd 2GisParser
+```
 
-2. Установите зависимости:
-```bash
+2. Создайте виртуальное окружение:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+3. Установите зависимости:
+
+```powershell
 pip install -r requirements.txt
 ```
 
-3. Установите ChromeDriver:
-   - Скачайте с https://chromedriver.chromium.org/
-   - Или используйте `webdriver-manager` (автоматически)
+4. При необходимости создайте `.env` на основе `.env.example`:
 
-4. Создайте файл `.env` (опционально):
-```env
-DEBUG=False
-HEADLESS=True
-REDIS_URL=redis://localhost:6379/0
-MAX_CONCURRENT_TASKS=3
+```powershell
+copy .env.example .env
 ```
 
-5. Запустите приложение:
-```bash
-cd project
-uvicorn app.main:app --reload
+## Запуск
+
+Стандартный запуск:
+
+```powershell
+python run.py
 ```
 
-Приложение будет доступно по адресу: http://localhost:8000
+Приложение будет доступно:
 
-### Docker установка
-
-1. Соберите и запустите контейнеры:
-```bash
-docker-compose up -d
+```text
+http://127.0.0.1:8000
 ```
 
-2. Приложение будет доступно по адресу: http://localhost:8000
+Если порт 8000 занят:
+
+```powershell
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+```
 
 ## Использование
 
-1. Откройте веб-интерфейс в браузере
-2. Введите поисковый запрос (например: "Строительные материалы")
-3. Выберите один или несколько городов
-4. Нажмите "Начать парсинг"
-5. Отслеживайте прогресс в реальном времени
-6. После завершения просмотрите результаты и скачайте Excel файл
+1. Откройте сайт в браузере.
+2. Вставьте ссылку 2ГИС.
+3. Укажите лимит страниц.
+4. Укажите лимит филиалов.
+5. Оставьте `Воркеры = 1`.
+6. Выберите нужные колонки в выпадающем списке.
+7. Нажмите `Начать`.
+8. Дождитесь окончания парсинга.
+9. Посмотрите предпросмотр первых 10 филиалов.
+10. Скачайте CSV.
 
-## API Endpoints
+## API
 
-### GET `/api/v1/cities`
-Получение списка доступных городов.
+### `POST /api/v1/parse-url`
 
-**Query параметры:**
-- `search` (опционально) - поиск по названию
+Запускает парсинг по ссылке 2ГИС.
 
-**Пример:**
-```bash
-curl http://localhost:8000/api/v1/cities?search=казань
-```
+Пример тела запроса:
 
-### POST `/api/v1/parse`
-Запуск парсинга.
-
-**Body:**
 ```json
 {
-  "query": "Строительные материалы",
-  "cities": ["kazan", "moscow"]
+  "url": "https://2gis.kz/aktau/search/coffee",
+  "max_pages": 3,
+  "max_filials": 100,
+  "workers": 1,
+  "columns": ["Название", "Оценка", "Город", "Адрес", "Телефоны", "Instagram"]
 }
 ```
 
-**Ответ:**
-```json
-{
-  "task_id": "abc12345",
-  "status": "pending",
-  "message": "Задача создана и поставлена в очередь"
-}
+### `GET /api/v1/tasks/{task_id}`
+
+Возвращает статус задачи и прогресс.
+
+### `GET /api/v1/tasks/{task_id}/results`
+
+Возвращает результаты с пагинацией.
+
+Пример:
+
+```text
+/api/v1/tasks/abc123/results?page=1&per_page=10
 ```
 
-### GET `/api/v1/tasks/{task_id}`
-Получение статуса задачи.
+### `GET /api/v1/tasks/{task_id}/download`
 
-**Ответ:**
-```json
-{
-  "task_id": "abc12345",
-  "status": "running",
-  "progress": 45,
-  "current_city": "Казань",
-  "firms_processed": 25,
-  "firms_total": 55
-}
+Скачивает CSV-файл с результатами.
+
+### `DELETE /api/v1/tasks/{task_id}`
+
+Отменяет задачу.
+
+### `GET /api/v1/export/columns`
+
+Возвращает список доступных колонок.
+
+### `WebSocket /ws/tasks/{task_id}`
+
+Отдает обновления прогресса в реальном времени.
+
+## Настройки
+
+Основные переменные:
+
+```env
+DEBUG=False
+HEADLESS=False
+CHROME_VERSION_MAIN=148
+SELENIUM_URL=http://localhost:4444/wd/hub
+PAGE_SIZE=12
+REQUEST_DELAY_MIN=0.05
+REQUEST_DELAY_MAX=0.15
+PAGE_TIMEOUT=20
+ELEMENT_TIMEOUT=12
+PARSER_WORKERS=1
+MAX_CONCURRENT_TASKS=3
+TASK_TTL_HOURS=1
+EXCEL_DIR=exports
 ```
 
-### GET `/api/v1/tasks/{task_id}/results`
-Получение результатов парсинга.
+## Структура проекта
 
-**Query параметры:**
-- `page` (по умолчанию: 1)
-- `per_page` (по умолчанию: 20, максимум: 100)
-
-### GET `/api/v1/tasks/{task_id}/download`
-Скачать Excel файл с результатами.
-
-### DELETE `/api/v1/tasks/{task_id}`
-Отмена задачи.
-
-### WebSocket `/ws/tasks/{task_id}`
-Подключение для отслеживания прогресса в реальном времени.
-
-## Конфигурация
-
-Настройки можно изменить через переменные окружения или файл `.env`:
-
-- `DEBUG` - режим отладки (по умолчанию: False)
-- `HEADLESS` - запуск браузера в headless режиме (по умолчанию: True)
-- `REDIS_URL` - URL Redis (для будущего использования)
-- `MAX_CONCURRENT_TASKS` - максимальное количество одновременных задач
-- `PAGE_SIZE` - количество результатов на странице 2GIS (по умолчанию: 12)
-- `REQUEST_DELAY_MIN` - минимальная задержка между запросами (секунды)
-- `REQUEST_DELAY_MAX` - максимальная задержка между запросами (секунды)
-
-## Разработка
-
-### Запуск в режиме разработки
-
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```text
+app/
+  api/              FastAPI routes
+  core/             Exceptions
+  models/           Pydantic schemas and domain models
+  services/         Parser, task manager, CSV export
+  utils/            Helpers and resource utilities
+static/
+  css/              Styles
+  js/               Frontend logic
+templates/
+  index.html        Web UI
+exports/            Generated CSV files, ignored by git
+run.py              Local launcher
+requirements.txt    Python dependencies
 ```
 
-### Тестирование
+## Проверка
 
-```bash
-pytest tests/
+Проверка Python-файлов:
+
+```powershell
+python -m compileall app
 ```
 
-## Docker
+Проверка JavaScript:
 
-### docker-compose.yml
-
-Включает:
-- FastAPI приложение
-- Redis (для будущего использования)
-- Selenium standalone Chrome (опционально)
-
-### Запуск
-
-```bash
-docker-compose up -d
+```powershell
+node --check static/js/app.js
 ```
 
-### Остановка
+## Примечания
 
-```bash
-docker-compose down
-```
-
-## Автор
-
-2GIS Parser Team
-
+- CSV-файлы в `exports/` не пушатся в git.
+- `.env` не пушится в git.
+- Если после изменений интерфейс выглядит старым, обновите страницу через `Ctrl + F5`.
