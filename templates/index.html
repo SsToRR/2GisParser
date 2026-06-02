@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>РџР°СЂСЃРµСЂ С„РёР»РёР°Р»РѕРІ 2Р“РРЎ</title>
+    <link rel="stylesheet" href="/static/css/styles.css?v=20260607">
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Р­РєСЃРїРѕСЂС‚ РґР°РЅРЅС‹С… 2Р“РРЎ</p>
+                <h1>РџР°СЂСЃРµСЂ С„РёР»РёР°Р»РѕРІ</h1>
+            </div>
+            <div class="status-pill" id="app-status">
+                <span class="status-dot"></span>
+                Р“РѕС‚РѕРІ
+            </div>
+        </header>
+
+        <main class="workspace">
+            <section class="input-panel" id="search-section">
+                <div class="panel-copy">
+                    <p class="eyebrow">РЎСЃС‹Р»РєР° 2Р“РРЎ</p>
+                    <h2>РЎРѕР±РµСЂРёС‚Рµ РєРѕРЅС‚Р°РєС‚С‹ С„РёР»РёР°Р»РѕРІ РёР· СЃС‚СЂР°РЅРёС†С‹ 2Р“РРЎ.</h2>
+                    <p class="muted">
+                        Р’СЃС‚Р°РІСЊС‚Рµ СЃСЃС‹Р»РєСѓ РЅР° РїРѕРёСЃРє, СЂСѓР±СЂРёРєСѓ РёР»Рё РєР°СЂС‚РѕС‡РєСѓ РєРѕРјРїР°РЅРёРё. РџР°СЂСЃРµСЂ РѕС‚РєСЂРѕРµС‚ РѕР±С‹С‡РЅРѕРµ РѕРєРЅРѕ Chrome,
+                        СЃРѕР±РµСЂРµС‚ РєР°СЂС‚РѕС‡РєРё С„РёР»РёР°Р»РѕРІ Рё РїРѕРґРіРѕС‚РѕРІРёС‚ CSV-С„Р°Р№Р».
+                    </p>
+                </div>
+
+                <form id="parse-form" class="parse-form">
+                    <label for="gis-url">РЎСЃС‹Р»РєР° 2Р“РРЎ</label>
+                    <div class="url-row">
+                        <input
+                            type="text"
+                            id="gis-url"
+                            name="gis-url"
+                            placeholder="https://2gis.kz/almaty/search/..."
+                            autocomplete="off"
+                            required
+                        >
+                        <button type="submit" id="submit-btn">
+                            <span>РќР°С‡Р°С‚СЊ</span>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label for="max-pages">Р›РёРјРёС‚ СЃС‚СЂР°РЅРёС†</label>
+                            <input
+                                type="number"
+                                id="max-pages"
+                                min="1"
+                                max="200"
+                                value="50"
+                            >
+                        </div>
+                        <div>
+                            <label for="max-filials">Р›РёРјРёС‚ С„РёР»РёР°Р»РѕРІ</label>
+                            <input
+                                type="number"
+                                id="max-filials"
+                                min="1"
+                                max="5000"
+                                value="100"
+                            >
+                        </div>
+                        <div>
+                            <label for="workers">Воркеры</label>
+                            <input
+                                type="number"
+                                id="workers"
+                                min="1"
+                                max="4"
+                                value="1"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="fields-picker">
+                        <label class="export-columns-label" for="column-multiselect-trigger">
+                            РљР°РєРёРµ РґР°РЅРЅС‹Рµ СЃРѕР±РёСЂР°С‚СЊ
+                        </label>
+                        <p class="muted fields-picker-hint">
+                            РћС‚РјРµС‚СЊС‚Рµ РїРѕР»СЏ РґРѕ Р·Р°РїСѓСЃРєР°. РџР°СЂСЃРµСЂ Р±СѓРґРµС‚ РѕС‚РєСЂС‹РІР°С‚СЊ РєР°СЂС‚РѕС‡РєРё С‚РѕР»СЊРєРѕ СЂР°РґРё РІС‹Р±СЂР°РЅРЅС‹С… РґР°РЅРЅС‹С…:
+                            С‚РµР»РµС„РѕРЅРѕРІ, СЃРѕС†СЃРµС‚РµР№, РІРєР»Р°РґРєРё В«РРЅС„РѕВ» Рё РґСЂСѓРіРёС… РїРѕР»РµР№.
+                        </p>
+                        <div class="multiselect" id="column-multiselect">
+                            <button
+                                type="button"
+                                class="multiselect-trigger"
+                                id="column-multiselect-trigger"
+                                aria-haspopup="listbox"
+                                aria-expanded="false"
+                            >
+                                <span id="column-multiselect-label">Р’СЃРµ РєРѕР»РѕРЅРєРё</span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M6 9l6 6 6-6"/>
+                                </svg>
+                            </button>
+                            <div
+                                class="multiselect-panel hidden"
+                                id="column-multiselect-panel"
+                                role="listbox"
+                                aria-multiselectable="true"
+                            >
+                                <div class="multiselect-toolbar">
+                                    <button type="button" class="link-btn" id="columns-select-all">
+                                        Р’С‹Р±СЂР°С‚СЊ РІСЃРµ
+                                    </button>
+                                    <button type="button" class="link-btn" id="columns-select-none">
+                                        РЎРЅСЏС‚СЊ РІСЃРµ
+                                    </button>
+                                </div>
+                                <div class="multiselect-options" id="column-options"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <section id="progress-section" class="progress-panel hidden">
+                <div class="progress-head">
+                    <div>
+                        <p class="eyebrow">Р’С‹РїРѕР»РЅРµРЅРёРµ</p>
+                        <h2 id="progress-title">РЎРєР°РЅРёСЂСѓРµРј 2Р“РРЎ</h2>
+                    </div>
+                    <button type="button" id="cancel-btn" class="ghost danger">РћС‚РјРµРЅРёС‚СЊ</button>
+                </div>
+
+                <div class="progress-meter">
+                    <div class="progress-track">
+                        <div id="progress-bar"></div>
+                    </div>
+                    <strong id="progress-percent">0%</strong>
+                </div>
+
+                <div class="metrics">
+                    <div>
+                        <span>Р“РѕСЂРѕРґ</span>
+                        <strong id="current-city">-</strong>
+                    </div>
+                    <div>
+                        <span>РЎС‚СЂР°РЅРёС†С‹</span>
+                        <strong id="page-progress">0 / 0</strong>
+                    </div>
+                    <div>
+                        <span>Р¤РёР»РёР°Р»С‹</span>
+                        <strong id="firms-progress">0 / 0</strong>
+                    </div>
+                </div>
+
+                <div class="log-line" id="progress-message">РћР¶РёРґР°РЅРёРµ Р·Р°РїСѓСЃРєР°...</div>
+            </section>
+
+            <section id="results-section" class="results-panel hidden">
+                <div class="results-head">
+                    <div>
+                        <p class="eyebrow">Р РµР·СѓР»СЊС‚Р°С‚С‹</p>
+                        <h2 id="results-count">0 С„РёР»РёР°Р»РѕРІ</h2>
+                    </div>
+                    <div class="actions">
+                        <p class="export-summary muted" id="export-summary"></p>
+                        <button type="button" id="download-btn">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/>
+                            </svg>
+                            CSV
+                        </button>
+                        <button type="button" id="new-search-btn" class="ghost">РќРѕРІР°СЏ СЃСЃС‹Р»РєР°</button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>РќР°Р·РІР°РЅРёРµ</th>
+                                <th>РђРґСЂРµСЃ</th>
+                                <th>РўРµР»РµС„РѕРЅС‹</th>
+                                <th>Email</th>
+                                <th>РЎР°Р№С‚</th>
+                                <th>РЎРѕС†СЃРµС‚Рё</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div id="pagination" class="pagination"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="error-alert" class="toast hidden" role="alert">
+        <span id="error-message"></span>
+        <button type="button" onclick="hideError()" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 6l12 12M18 6 6 18"/>
+            </svg>
+        </button>
+    </div>
+
+    <script src="/static/js/app.js?v=20260607"></script>
+</body>
+</html>
